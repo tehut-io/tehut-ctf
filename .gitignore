@@ -1,0 +1,9 @@
+# runtime data (database, logs, your progress and per-install flags)
+data/
+*.db
+access.log
+__pycache__/
+*.pyc
+.venv/
+venv/
+.DS_Store

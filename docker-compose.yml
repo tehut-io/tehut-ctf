@@ -1,0 +1,14 @@
+services:
+  tehut-ctf:
+    build: .
+    container_name: tehut-ctf
+    ports:
+      - "127.0.0.1:5000:5000"   # localhost only - never expose this app
+    volumes:
+      - progress:/app/data       # keeps your score between restarts
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
+
+volumes:
+  progress:

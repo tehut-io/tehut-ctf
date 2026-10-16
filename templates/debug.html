@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ err }} // Werkzeug Debugger</title>
+<link rel="stylesheet" href="/static/lab.css">
+<script defer src="/static/lab.js"></script>
+</head>
+<body class="debug">
+<div class="debug-wrap">
+  <h1>{{ err.split('(')[0] }}</h1>
+  <div class="errormsg">{{ err }}</div>
+  <p>Traceback <em>(most recent call last)</em> while handling <code>{{ path }}</code>:</p>
+  <pre class="tb">{{ tb }}</pre>
+  <h2>Environment snapshot</h2>
+  <table class="envtbl">
+    {% for k, v in env.items() %}<tr><th>{{ k }}</th><td><code>{{ v }}</code></td></tr>{% endfor %}
+  </table>
+  <p class="footer">Brought to you by <strong>DON'T PANIC</strong>, your friendly Werkzeug powered
+     traceback interpreter. · <a href="/">Back to Pixel Palace</a> · <a href="/hq">🏴 Tehut HQ</a></p>
+</div>
+<div id="toasts" aria-live="polite"></div>
+</body>
+</html>

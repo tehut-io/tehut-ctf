@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }} · Pixel Palace Arcade</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👾</text></svg>">
+<link rel="stylesheet" href="/static/lab.css">
+<script>try{var t=localStorage.getItem('tehut-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+{% if xss %}
+<script>
+/* CTF harness (not part of the target): detects alert()/confirm()/prompt()
+   fired by YOUR injected JavaScript and reveals the flag. */
+(function () {
+  var token = {{ xss|tojson }}, fired = false;
+  ['alert', 'confirm', 'prompt'].forEach(function (name) {
+    var orig = window[name];
+    window[name] = function () {
+      if (!fired) {
+        fired = true;
+        fetch('/hq/api/xss', {method: 'POST', headers: {'Content-Type': 'application/json'},
+                              body: JSON.stringify({token: token})})
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (!d.flag) return;
+            (window.__labQueue = window.__labQueue || []).push(['xss', d.flag]);
+            if (window.Lab) window.Lab.drain();
+          });
+      }
+      return orig.apply(window, arguments);
+    };
+  });
+})();
+</script>
+{% endif %}
+<script defer src="/static/lab.js"></script>
+</head>
+<body class="arcade">
+<header class="topbar">
+  <a class="brand" href="/"><span class="logo">👾</span> PIXEL<b>PALACE</b></a>
+  <nav>
+    <a href="/search">News</a>
+    <a href="/comments">Graffiti</a>
+    <a href="/gift">Tokens</a>
+    <a href="/support">Help desk</a>
+    <a href="/tools">Tools</a>
+    {% if me %}
+      <a href="/inbox">Inbox</a>
+      <a href="/account" class="me">👤 {{ me.username }}</a>
+      <a href="/logout">Logout</a>
+    {% else %}
+      <a href="/login" class="me">Login</a>
+    {% endif %}
+    <button class="theme-btn" data-theme-toggle aria-label="Toggle light mode">☀️</button>
+  </nav>
+</header>
+
+<main class="wrap">
+{% block content %}{% endblock %}
+</main>
+
+<footer class="foot">
+  <p class="foot-marquee">+ HIGH SCORES · LOW SECURITY · PRESS START +</p>
+  <p>© 1986–2026 Pixel Palace Arcade · "Your tokens are safe with us"<sup>*</sup></p>
+  <p class="muted"><small>* not legally binding. A deliberately vulnerable training app. Run locally only.</small></p>
+  <p class="powered">A <a href="https://tehut.io" target="_blank" rel="noopener"><b>Tehut Security</b></a> training lab · tehut.io</p>
+</footer>
+
+<div class="hud" role="complementary" aria-label="CTF progress">
+  <a class="hud-hq" href="/hq" title="Tehut HQ">🏴 Tehut HQ</a>
+  <span class="hud-score"><b data-hud="score">{{ progress.score }}</b> pts</span>
+  <span class="hud-count"><b data-hud="solved">{{ progress.solved }}</b>/{{ progress.total }}</span>
+  <button class="hud-btn" data-open-submit>Submit flag</button>
+</div>
+
+<dialog id="submit-dialog" class="flag-dialog">
+  <form method="dialog" data-submit-form>
+    <h3>🚩 Submit a flag</h3>
+    <input name="flag" placeholder="FLAG{...}" autocomplete="off" spellcheck="false" required>
+    <div class="row">
+      <button class="btn" value="submit">Submit</button>
+      <button class="btn ghost" value="cancel" formnovalidate>Cancel</button>
+    </div>
+  </form>
+</dialog>
+<div id="toasts" aria-live="polite"></div>
+</body>
+</html>

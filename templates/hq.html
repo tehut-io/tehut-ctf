@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tehut HQ · Tehut Security CTF</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏴</text></svg>">
+<link rel="stylesheet" href="/static/lab.css">
+<script>try{var t=localStorage.getItem('tehut-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="/static/lab.js"></script>
+</head>
+<body class="hq">
+<header class="hq-top">
+  <div class="hq-brand">
+    <a class="hq-home" href="https://tehut.io" target="_blank" rel="noopener"><span class="glitch" data-text="TEHUT HQ">TEHUT HQ</span></a>
+    <small>// Tehut Security CTF · engagement: Pixel Palace Arcade</small>
+  </div>
+  <div class="hq-actions">
+    <button class="theme-btn" data-theme-toggle aria-label="Toggle light mode">☀️</button>
+    <a class="btn ghost" href="/">Go to target →</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hq-stats">
+    <div class="rank">
+      <div class="rank-icon">{{ progress.rank.icon }}</div>
+      <div>
+        <p class="eyebrow">Rank</p>
+        <h2>{{ progress.rank.name }}</h2>
+      </div>
+    </div>
+    <div class="meter">
+      <div class="meter-row">
+        <span><b data-hud="score">{{ progress.score }}</b> / {{ progress.max_score }} pts</span>
+        <span><b data-hud="solved">{{ progress.solved }}</b> / {{ progress.total }} flags</span>
+      </div>
+      <div class="bar"><span style="width: {{ progress.pct }}%"></span></div>
+    </div>
+    <form class="hq-submit" data-submit-form>
+      <input name="flag" placeholder="FLAG{...}" autocomplete="off" spellcheck="false" required>
+      <button class="btn">Submit 🚩</button>
+    </form>
+  </section>
+
+  <details class="briefing" {% if progress.solved == 0 %}open{% endif %}>
+    <summary>📁 Mission briefing</summary>
+    <div class="briefing-body">
+      <p>Operator, welcome to <b>Tehut Security</b>. Pixel Palace Arcade hired us to find out how
+         broken their staff portal is before real attackers do. You've been placed inside as their new
+         <b>intern</b>. Capture every flag and bring the evidence home.</p>
+      <ol>
+        <li>Log into the target as <code>intern</code> / <code>intern</code>.</li>
+        <li>Each card below is a mission covering one <b>OWASP Top 10 (2021)</b> category. Hit
+            <b>Start</b> to jump to where it begins.</li>
+        <li>Exploit the bug and a flag like <code>FLAG{...}</code> appears. Click any 🚩 flag on
+            the page to submit it, or paste it here or in the HQ bar on every page.</li>
+        <li>Stuck? Hints cost a slice of the challenge's points. Every solved mission unlocks a
+            <b>lesson</b> on how to fix the bug.</li>
+      </ol>
+      <p class="muted">Tools that help: your browser's DevTools, <code>curl</code>, Burp Suite / ZAP,
+         Python. Pro tip: always read <code>/robots.txt</code>.</p>
+    </div>
+  </details>
+
+  <div class="filters" role="tablist">
+    <button class="chip active" data-filter="all">All</button>
+    <button class="chip" data-filter="todo">To do</button>
+    <button class="chip" data-filter="done">Solved</button>
+    <span class="spacer"></span>
+    <button class="chip" data-filter="easy">Easy</button>
+    <button class="chip" data-filter="medium">Medium</button>
+    <button class="chip" data-filter="hard">Hard</button>
+  </div>
+
+  {% for cat in cats %}
+  <section class="cat" data-cat>
+    <div class="cat-head">
+      <span class="cat-code">{{ cat.code }}</span>
+      <div><h2>{{ cat.name }}</h2><p class="muted">{{ cat.desc }}</p></div>
+      <span class="cat-done">{{ cat.done }}/{{ cat['items']|length }}</span>
+    </div>
+    <div class="cards">
+    {% for c in cat['items'] %}
+      <article class="mission {{ 'solved' if c.solved }}" data-diff="{{ c.difficulty }}"
+               data-state="{{ 'done' if c.solved else 'todo' }}" id="m-{{ c.key }}">
+        <div class="mission-top">
+          <span class="pill {{ c.difficulty }}">{{ c.difficulty }}</span>
+          <span class="pts">{% if c.solved %}+{{ c.solved.points }}{% else %}{{ c.points }}{% endif %} pts</span>
+        </div>
+        <h3>{% if c.solved %}✅ {% endif %}{{ c.title }}</h3>
+        <p>{{ c.brief|safe }}</p>
+        <div class="mission-actions">
+          <a class="btn small" href="{{ c.entry }}">Start →</a>
+        </div>
+        <div class="hints">
+          {% for h in c.hints %}
+            {% set lvl = loop.index %}
+            {% if lvl <= c.hints_used %}
+              <div class="hint shown"><b>Hint {{ lvl }}:</b> {{ h|safe }}</div>
+            {% elif lvl == c.hints_used + 1 %}
+              <button class="hint-btn" data-hint="{{ c.key }}" data-level="{{ lvl }}"
+                      data-cost="{{ 0 if c.solved else c.costs[lvl - 1] }}">
+                💡 Hint {{ lvl }} {% if not c.solved %}<span>(-{{ c.costs[lvl - 1] }} pts)</span>{% endif %}
+              </button>
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% if c.solved %}
+        <details class="lesson"><summary>🎓 Lesson learned</summary><p>{{ c.lesson|safe }}</p></details>
+        {% endif %}
+      </article>
+    {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+
+  <section class="hq-foot">
+    <form method="post" action="/hq/reset" onsubmit="return confirm('Reset the lab data (users, balances, comments, logs)? Your score is kept.')">
+      <input type="hidden" name="what" value="lab">
+      <button class="btn ghost small">♻️ Reset lab data</button>
+    </form>
+    <form method="post" action="/hq/reset" onsubmit="return confirm('Wipe ALL progress and generate brand-new flags?')">
+      <input type="hidden" name="what" value="progress">
+      <button class="btn danger small">🧨 Wipe progress</button>
+    </form>
+    <p class="muted"><small>Built by <a href="https://tehut.io" target="_blank" rel="noopener">Tehut Security</a> · tehut.io<br>⚠️ This app is intentionally vulnerable (including remote code execution).
+       Keep it on localhost or in Docker. Only hack things you own.</small></p>
+  </section>
+</main>
+<div id="toasts" aria-live="polite"></div>
+</body>
+</html>
