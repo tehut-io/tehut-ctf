@@ -1,6 +1,6 @@
 # 👾 Tehut Security CTF: Pixel Palace Arcade
 
-[![solvable](https://github.com/Dragonflysorcerss/tehut-ctf/actions/workflows/ci.yml/badge.svg)](https://github.com/Dragonflysorcerss/tehut-ctf/actions/workflows/ci.yml)
+[![solvable](https://github.com/tehut-io/tehut-ctf/actions/workflows/ci.yml/badge.svg)](https://github.com/tehut-io/tehut-ctf/actions/workflows/ci.yml)
 ![OWASP Top 10](https://img.shields.io/badge/OWASP-Top%2010%20(2021)-ff2a6d)
 ![challenges](https://img.shields.io/badge/challenges-19-05d9e8)
 ![license](https://img.shields.io/badge/license-MIT-ffd319)
@@ -56,7 +56,7 @@ execution** on the machine running it.
 ### Option A: Docker (recommended)
 
 ```bash
-git clone https://github.com/Dragonflysorcerss/tehut-ctf.git
+git clone https://github.com/tehut-io/tehut-ctf.git
 cd tehut-ctf
 docker compose up --build
 ```
